@@ -1,0 +1,24 @@
+#Path to NPF
+NPF_PATH=/root/ddio-bench/npf
+
+# Tools path 
+TOOLS_PATH :=
+
+# Pcap files path
+
+TOOLS_PATH += PCAP_PATH=/root/ddio-bench/pcap-files
+
+#Path to fastclick on 
+
+TOOLS_PATH += DUT_FASTCLICK_PATH=/root/ddio-spdk/fastclick
+TOOLS_PATH += PKT_GEN_FASTCLICK_PATH=/root/ddio-bench/fastclick
+
+# Path to Splash-3 Benchmark Suite
+TOOLS_PATH += DUT_SPLASH_PATH=/root/ddio-spdk/Splash-3/codes/apps/water-nsquared
+
+# SPDK Melloc Device Name
+TOOLS_PATH += SPDK_DEVNAME=/dev/nvme0n1
+
+# NPF Clusters (dut.node and pkt-gen.node should be defined in ${NPF_PATH}/cluster)
+NPF_CLUSTER=server=dut client=pkt-gen
+

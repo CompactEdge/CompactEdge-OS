@@ -1,0 +1,15 @@
+path=/root/ddio-bench/npf
+addr=10.10.0.44
+user=root
+arch=haswell
+nfs=0
+
+0:mac=b8:59:9f:1b:a5:6a
+0:ip=10.10.1.2
+0:ifname=ens865
+0:pci=0000:03:00.0
+
+1:mac=b8:59:9f:1b:a2:7a
+1:ip=10.10.2.4
+1:ifname=ens261
+1:pci=0000:04:00.0
