@@ -1476,13 +1476,14 @@ void activate_task(struct rq *rq, struct task_struct *p, int flags)
 
 	p->on_rq = TASK_ON_RQ_QUEUED;
 }
-
+DECLARE_PER_CPU(int, rt_irq_flag);
 void deactivate_task(struct rq *rq, struct task_struct *p, int flags)
 {
 	p->on_rq = (flags & DEQUEUE_SLEEP) ? 0 : TASK_ON_RQ_MIGRATING;
 
 	if (task_contributes_to_load(p))
 		rq->nr_uninterruptible++;
+    if(p->normal_prio < 20) per_cpu(rt_irq_flag, smp_processor_id()) = 0; /* clear irq disable flag */
 
 	dequeue_task(rq, p, flags);
 }
