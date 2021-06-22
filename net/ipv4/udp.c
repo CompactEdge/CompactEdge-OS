@@ -1673,17 +1673,17 @@ struct sk_buff *__skb_recv_udp(struct sock *sk, unsigned int flags,
 
 		error = -EAGAIN;
 		do {
-			spin_lock_bh(&queue->lock);
+			spin_lock_bh_net(&queue->lock);
 			skb = __skb_try_recv_from_queue(sk, queue, flags,
 							udp_skb_destructor,
 							off, err, &last);
 			if (skb) {
-				spin_unlock_bh(&queue->lock);
+				spin_unlock_bh_net(&queue->lock);
 				return skb;
 			}
 
 			if (skb_queue_empty_lockless(sk_queue)) {
-				spin_unlock_bh(&queue->lock);
+				spin_unlock_bh_net(&queue->lock);
 				goto busy_check;
 			}
 
@@ -1699,7 +1699,7 @@ struct sk_buff *__skb_recv_udp(struct sock *sk, unsigned int flags,
 							udp_skb_dtor_locked,
 							off, err, &last);
 			spin_unlock(&sk_queue->lock);
-			spin_unlock_bh(&queue->lock);
+			spin_unlock_bh_net(&queue->lock);
 			if (skb)
 				return skb;
 

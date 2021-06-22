@@ -45,6 +45,12 @@ extern void __lockfunc __rt_spin_unlock(struct rt_mutex *lock);
 		rt_spin_lock(lock);		\
 	} while (0)
 
+#define spin_lock_bh_net(lock)			\
+	do {					\
+		local_bh_net_disable();		\
+		rt_spin_lock(lock);		\
+	} while (0)
+
 #define spin_lock_irq(lock)		spin_lock(lock)
 
 #define spin_do_trylock(lock)		__cond_lock(lock, rt_spin_trylock(lock))
@@ -113,6 +119,12 @@ static inline unsigned long spin_lock_trace_flags(spinlock_t *lock)
 	do {						\
 		rt_spin_unlock(lock);			\
 		local_bh_enable();			\
+	} while (0)
+
+#define spin_unlock_bh_net(lock)				\
+	do {						\
+		rt_spin_unlock(lock);			\
+		local_bh_net_enable();			\
 	} while (0)
 
 #define spin_unlock_irq(lock)		spin_unlock(lock)

@@ -279,6 +279,7 @@ static inline void do_raw_spin_unlock(raw_spinlock_t *lock) __releases(lock)
 
 #define raw_spin_lock_irq(lock)		_raw_spin_lock_irq(lock)
 #define raw_spin_lock_bh(lock)		_raw_spin_lock_bh(lock)
+#define raw_spin_lock_bh_net(lock)      _raw_spin_lock_bh_net(lock)
 #define raw_spin_unlock(lock)		_raw_spin_unlock(lock)
 #define raw_spin_unlock_irq(lock)	_raw_spin_unlock_irq(lock)
 
@@ -288,6 +289,7 @@ static inline void do_raw_spin_unlock(raw_spinlock_t *lock) __releases(lock)
 		_raw_spin_unlock_irqrestore(lock, flags);	\
 	} while (0)
 #define raw_spin_unlock_bh(lock)	_raw_spin_unlock_bh(lock)
+#define raw_spin_unlock_bh_net(lock)    _raw_spin_unlock_bh_net(lock)
 
 #define raw_spin_trylock_bh(lock) \
 	__cond_lock(lock, _raw_spin_trylock_bh(lock))
@@ -305,6 +307,11 @@ static inline void do_raw_spin_unlock(raw_spinlock_t *lock) __releases(lock)
 	raw_spin_trylock(lock) ? \
 	1 : ({ local_irq_restore(flags); 0; }); \
 })
+
+#define raw_spin_trylock_bh_net(lock) \
+	__cond_lock(lock, _raw_spin_trylock_bh_net(lock))
+
+
 
 /* Include rwlock functions */
 #ifdef CONFIG_PREEMPT_RT
@@ -351,6 +358,11 @@ static __always_inline void spin_lock_bh(spinlock_t *lock)
 	raw_spin_lock_bh(&lock->rlock);
 }
 
+static __always_inline void spin_lock_bh_net(spinlock_t *lock)
+{
+    raw_spin_lock_bh_net(&lock->rlock);
+}
+
 static __always_inline int spin_trylock(spinlock_t *lock)
 {
 	return raw_spin_trylock(&lock->rlock);
@@ -391,6 +403,11 @@ static __always_inline void spin_unlock_bh(spinlock_t *lock)
 	raw_spin_unlock_bh(&lock->rlock);
 }
 
+static __always_inline void spin_unlock_bh_net(spinlock_t *lock)
+{
+    raw_spin_unlock_bh_net(&lock->rlock);
+}
+
 static __always_inline void spin_unlock_irq(spinlock_t *lock)
 {
 	raw_spin_unlock_irq(&lock->rlock);
@@ -409,6 +426,11 @@ static __always_inline int spin_trylock_bh(spinlock_t *lock)
 static __always_inline int spin_trylock_irq(spinlock_t *lock)
 {
 	return raw_spin_trylock_irq(&lock->rlock);
+}
+
+static __always_inline int spin_trylock_bh_net(spinlock_t *lock)
+{
+    return raw_spin_trylock_bh_net(&lock->rlock);
 }
 
 #define spin_trylock_irqsave(lock, flags)			\

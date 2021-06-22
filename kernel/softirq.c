@@ -84,7 +84,7 @@ static void wakeup_softirqd(void)
  * right now. Let ksoftirqd handle this at its own rate, to get fairness,
  * unless we're doing some of the synchronous softirqs.
  */
-#define SOFTIRQ_NOW_MASK ((1 << HI_SOFTIRQ) | (1 << TASKLET_SOFTIRQ))
+#define SOFTIRQ_NOW_MASK ((1 << HI_SOFTIRQ) | (1 << TASKLET_SOFTIRQ) | (1 << NET_RX_SOFTIRQ))
 static bool ksoftirqd_running(unsigned long pending)
 {
 	struct task_struct *tsk = __this_cpu_read(ksoftirqd);
@@ -107,6 +107,7 @@ static bool ksoftirqd_running(unsigned long pending)
 
 #ifdef CONFIG_PREEMPT_RT
 static DEFINE_LOCAL_IRQ_LOCK(bh_lock);
+static DEFINE_LOCAL_IRQ_LOCK(bh_net_lock);
 static DEFINE_PER_CPU(long, softirq_counter);
 
 void __local_bh_disable_ip(unsigned long ip, unsigned int cnt)
@@ -131,6 +132,29 @@ void __local_bh_disable_ip(unsigned long ip, unsigned int cnt)
 #endif
 }
 EXPORT_SYMBOL(__local_bh_disable_ip);
+
+void __local_bh_net_disable_ip(unsigned long ip, unsigned int cnt)
+{
+    unsigned long __maybe_unused flags;
+    long soft_cnt;
+
+    WARN_ON_ONCE(in_irq());
+    if (!in_atomic()) {
+        local_lock(bh_net_lock);
+        rcu_read_lock();
+    }
+    soft_cnt = this_cpu_inc_return(softirq_counter);
+    WARN_ON_ONCE(soft_cnt == 0);
+    current->softirq_count += SOFTIRQ_DISABLE_OFFSET;
+
+#ifdef CONFIG_TRACE_IRQFLAGS
+    local_irq_save(flags);
+    if (soft_cnt == 1)
+        trace_softirqs_off(ip);
+    local_irq_restore(flags);
+#endif
+}
+EXPORT_SYMBOL(__local_bh_net_disable_ip);
 
 static void local_bh_disable_rt(void)
 {
@@ -177,7 +201,8 @@ void __local_bh_enable_ip(unsigned long ip, unsigned int cnt)
 
 	if (unlikely(count == 1)) {
 		pending = local_softirq_pending();
-		if (pending && !ksoftirqd_running(pending)) {
+		if (pending && !ksoftirqd_running(pending) &&
+           unlikely(get_current()->prio > 20)) {
 			if (!in_atomic())
 				__do_softirq();
 			else
@@ -198,6 +223,42 @@ void __local_bh_enable_ip(unsigned long ip, unsigned int cnt)
 	preempt_check_resched();
 }
 EXPORT_SYMBOL(__local_bh_enable_ip);
+
+void __local_bh_net_enable_ip(unsigned long ip, unsigned int cnt)
+{
+    u32 pending;
+    long count;
+
+    WARN_ON_ONCE(in_irq());
+    lockdep_assert_irqs_enabled();
+
+    local_irq_disable();
+    count = this_cpu_read(softirq_counter);
+
+    if (unlikely(count == 1)) {
+        pending = local_softirq_pending();
+        if (pending && !ksoftirqd_running(pending) &&
+           unlikely(get_current()->prio > 20)) {
+            if (!in_atomic())
+                __do_softirq();
+            else
+                wakeup_softirqd();
+        }
+        trace_softirqs_on(ip);
+    }
+    count = this_cpu_dec_return(softirq_counter);
+    WARN_ON_ONCE(count < 0);
+    local_irq_enable();
+
+    if (!in_atomic()) {
+        rcu_read_unlock();
+        local_unlock(bh_net_lock);
+    }
+
+    current->softirq_count -= SOFTIRQ_DISABLE_OFFSET;
+    preempt_check_resched();
+}
+EXPORT_SYMBOL(__local_bh_net_enable_ip);
 
 #else
 static void local_bh_disable_rt(void) { }
