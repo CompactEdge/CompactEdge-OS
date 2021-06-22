@@ -36,3 +36,5 @@ struct pktgen_socks *pktgen_server_init(int port);
 struct pktgen_socks *pktgen_client_init(char* interface, int port, char *file, FILE **fp);
 int pktgen_server_socket_init(int port, int *sock);
 int send_udp_datagram(struct pktgen_socks *socks, struct sockaddr_in *remaddr, int sleep_ms);
+int client_warmup(struct pktgen_socks *socks, struct pktgen_msg *msg, struct timespec *tstamp,
+        struct sockaddr_in *remaddr, int warmup_cnt);

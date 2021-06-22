@@ -188,8 +188,8 @@ ssize_t receive_pkt_common(int sock_fd, struct iovec *iov, struct timespec *tsta
     struct msghdr m = {0};
     char ctrlbuf[1024];
     ssize_t size;
-    int ret;
-    int stamp_found;
+//    int ret;
+//    int stamp_found;
 
     m.msg_iov = iov;
     m.msg_iovlen = 1;
@@ -208,7 +208,8 @@ ssize_t receive_pkt_common(int sock_fd, struct iovec *iov, struct timespec *tsta
         return size;
     }
     if(!client) return 0; // server do not get rx timestamp
-    if ((ret = parse_control_msg(&m, tstamp, &stamp_found)) < 0) return ret;
+// HW Tstamp Disabled
+//    if ((ret = parse_control_msg(&m, tstamp, &stamp_found)) < 0) return ret;
     
     return size;
 }
@@ -296,10 +297,10 @@ struct pktgen_socks *pktgen_client_init(char* interface, int port, char *file, F
     }
 
     // enable hw timestamping
-    if((ret = enable_hw_timestamp(socks->udp_sock, interface)) < 0) {
-        perror("enable_hw_timestamp_sock");
-        return NULL;
-    }
+//    if((ret = enable_hw_timestamp(socks->udp_sock, interface)) < 0) {
+//       perror("enable_hw_timestamp_sock");
+//       return NULL;
+//   }
 
     // log file init
     *fp = fopen(file, "w");
@@ -315,7 +316,7 @@ int send_udp_datagram(struct pktgen_socks *socks, struct sockaddr_in *remaddr, i
 {
     int ret;
     struct pktgen_msg m = {0,};
-    struct timespec ts_sleep = {0};
+    struct timespec ts_sleep = {0,};
     struct iovec iov = {&m, sizeof(m)};
 
     while(1)
@@ -334,5 +335,20 @@ int send_udp_datagram(struct pktgen_socks *socks, struct sockaddr_in *remaddr, i
 
     }
 
+}
+
+int client_warmup(struct pktgen_socks *socks, struct pktgen_msg *msg, struct timespec *tstamp,
+        struct sockaddr_in *remaddr, int warmup_cnt)
+{
+    int ret = 0;
+    while(warmup_cnt)
+    {
+        if((ret = receive_pkt_msg(socks->udp_sock, msg, tstamp, remaddr, true)) < 0) {
+            fprintf(stderr, "client.receive_pkt_msg: invalid packet.\n");
+            return EXIT_FAILURE;
+        }
+        warmup_cnt--;
+    }
+    return 0;
 
 }
