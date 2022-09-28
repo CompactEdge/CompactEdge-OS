@@ -1394,22 +1394,17 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags)
 {
 	struct task_struct *curr;
 	struct rq *rq;
+	long softirq_cnt;
 
-    int target = cpu;
-    long softirq_cnt;
-    
-    cpumask_t cpumask;
-    cpumask_and(&cpumask, &p->cpus_mask, cpu_active_mask); // cpus_allowed cpumask
- 
 	/* For anything but wake ups, just return the task_cpu */
 	if (sd_flag != SD_BALANCE_WAKE && sd_flag != SD_BALANCE_FORK)
 		goto out;
 
-	rq = cpu_rq(target);
+	rq = cpu_rq(cpu);
 
 	rcu_read_lock();
-	curr = READ_ONCE(rq->curr); /* unlocked access */ 
-    softirq_cnt = per_cpu(softirq_counter, target);
+	curr = READ_ONCE(rq->curr); /* unlocked access */
+	softirq_cnt = per_cpu(softirq_counter, cpu);
 
 	/*
 	 * If the current task on @p's runqueue is an RT task, then
@@ -1434,18 +1429,20 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags)
 	 * will have to sort it out.
 	 */
 	if (softirq_cnt != 0 ||
-       (curr && unlikely(rt_task(curr)) &&
-	   (curr->nr_cpus_allowed < 2 ||
-	    curr->prio <= p->prio))) {
-		    int target = -1;
-           /* start linear search */
-            do {
-                    target = cpumask_next(target, &cpumask);
-					if(target >= nr_cpu_ids)
-                        break;
-                    cpumask_clear_cpu(target, &cpumask);
-                    softirq_cnt = per_cpu(softirq_counter, target);
-                } while( (softirq_cnt != 0) ||  (p->prio >= cpu_rq(target)->rt.highest_prio.curr) );
+		(curr && unlikely(rt_task(curr)) &&
+		(curr->nr_cpus_allowed < 2 ||
+		curr->prio <= p->prio))) {
+		int target;
+		cpumask_t cpumask;
+		cpumask_and(&cpumask, &p->cpus_mask, cpu_active_mask); // cpus_allowed cpumask
+
+		/* start linear search */
+		do {
+			target = cpumask_next(target, &cpumask);
+			if (target >= nr_cpu_ids)
+				break;
+			softirq_cnt = per_cpu(softirq_counter, target);
+		} while (softirq_cnt != 0 || p->prio >= cpu_rq(target)->rt.highest_prio.curr);
 
 		/*
 		 * Don't bother moving it if the destination CPU is
@@ -1457,8 +1454,7 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags)
 	rcu_read_unlock();
 
 out:
-    if(cpumask_first(&cpumask) >= nr_cpu_ids) printk("no availiable cpus on conditions. (task_cpu:%d) (task:%s)\n", cpu, p->comm);
-    if(p->normal_prio < 20) per_cpu(rt_irq_flag, cpu) = 1;
+	if (p->normal_prio < 20) per_cpu(rt_irq_flag, cpu) = 1;
 	return cpu;
 }
 
