@@ -168,9 +168,9 @@ void __local_bh_enable_ip(unsigned long ip, unsigned int cnt)
 {
 	u32 pending;
 	long count;
-    struct task_struct *tsk;
+	struct task_struct *tsk;
 
-    tsk = get_current();
+	tsk = get_current();
 
 	WARN_ON_ONCE(in_irq());
 	lockdep_assert_irqs_enabled();
@@ -180,9 +180,9 @@ void __local_bh_enable_ip(unsigned long ip, unsigned int cnt)
 
 	if (unlikely(count == 1)) {
 		pending = local_softirq_pending();
-        /* Check Priority Inheritance */
+		/* Check Priority Inheritance */
 		if (pending && !ksoftirqd_running(pending) &&
-           (tsk->prio > 20) && (this_cpu_read(rt_irq_flag) == 0)) {
+			(tsk->prio > 20) && (this_cpu_read(rt_irq_flag) == 0)) {
 			if (!in_atomic())
 				__do_softirq();
 			else
