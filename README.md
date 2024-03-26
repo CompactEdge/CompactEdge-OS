@@ -41,9 +41,17 @@ PREEMPT-RT 패치를 적용한 커널은 실시간 운영 체제(RTOS)의 특성
 
 <img width="453" alt="image" src="https://github.com/CompactEdge/CompactEdge-OS/assets/60088469/b85a10fc-f1b2-4868-a7d5-5d48633c21ba">
 
+자체 실험을 진행한 결과, 패킷이 머신에 들어와서 응용에 도달하기 까지의 시간이 기존 `PREEMPT-RT`커널 대비 최악의 경우에서 약 30배 빨라진 것을 확인하였습니다.
+
+<img width="611" alt="image" src="https://github.com/CompactEdge/CompactEdge-OS/assets/60088469/0229f240-f24b-407b-b906-16687948264a">
 
 ## Kubernetes
-RT 
+
+실시간 응용을 실행하기 위해서는 응용에 실시간 우선순위(realtime priority)를 부여해야 합니다.
+
+기존의 kubernetes에서는 컨테이너 응용에 실시간 우선순위를 부여하는 기능이 제공되지 않습니다.
+
+
 
 # Architecture
 
