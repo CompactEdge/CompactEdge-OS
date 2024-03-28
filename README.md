@@ -12,7 +12,7 @@
   * [RT patched Linux branches](#rt-patched-linux-branches)
   * [Kubernetes](#kubernetes)
   * [Test branches](#test-branches)
-
+- [Contributors](#contributors)
 # About
 **CompactEdge-OS**는 kubernetes에 실시간 스케줄링을 지원하는 통합 플랫폼입니다.
 
@@ -104,3 +104,8 @@ CompactEdge는 실시간 응용이 할당받을 수 있는 `RT-Core`를 정의�
 * `pktgen-edge`: 성능 측정 실험에 사용된 패킷 제너레이터 응용입니다.
 * `ebpf-tstamp`: 성능 측정 프로파일링에 사용된 ebpf 프로그램입니다.
 * `ddio-spdk`: 100G 이더넷 연구목적으로 사용된 브랜치입니다.
+
+# Contributors
+- Kangmin Lee (kangmin@rtst.co.kr)
+- Jeaho Hwang (jhhwang@rtst.co.kr)
+- Seokwoo Yang (seokwoo.yang@rtst.co.kr)
