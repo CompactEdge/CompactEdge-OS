@@ -1,3 +1,22 @@
+# Contents
+- [About](#about)
+- [Features](#features)
+  * [Linux Kernel](#linux-kernel)
+    + [PREEMPT-RT Patch](#preempt-rt-patch)
+    + [Avoid Bottom-half Lock Patch](#avoid-bottom-half-lock-patch)
+  * [Kubernetes](#kubernetes)
+    + [Realtime Container](#realtime-container)
+    + [RT Core](#rt-core)
+    + [RT Core with kube-scheduler](#rt-core-with-kube-scheduler)
+- [Explain Branches](#explain-branches)
+  * [RT patched Linux branches](#rt-patched-linux-branches)
+  * [Test branches](#test-branches)
+  * [kubernetes](#kubernetes)
+
+# About
+__CompactEdge-OS__는 kubernetes에 실시간 스케줄링을 지원하는 통합 플랫폼입니다.
+
+크게 네트워크 최적화가 적용된 실시간 커널과, 실시간 응용을 배포할 수 있는 kubernetes로 구성되어 있습니다.
 
 # Features
 ## Linux Kernel
@@ -73,15 +92,15 @@ CompactEdge는 실시간 응용이 할당받을 수 있는 `RT-Core`를 정의�
 
 남은 `RT-Core` 정보는 kubernetes 노드의 label을 통해 보여지며 이를 통해 실시간 응용이 실시간 코어를 할당받음을 보장할 수 있습니다.
 
-# Architecture
-
-
-# RT Linux patched version
-
-Base Kernel version is 5.4.93 with preempt-rt patch.
-
-The `linux-stable-5.4.93-rt51` branch has put base kernel sources.
-
-The `linux-stable-5.4.93-rt51-avoid_bh_lock` branch has applied with softirq avoidance patch.
-
-The `linux-stable-5.4.93-rt51-remove_bh_lock` branch is experimental branch. Be careful to use.
+# Explain Branches
+## RT patched Linux branches
+* `linux-stable-5.4.93-rt51`: 가장 기본적인 PREEMPT-RT 패치가 적용된 브랜치입니다.
+* `linux-stable-5.4.93-rt51-avoid_bh_lock`: 'Avoid Bottom-half Lock Patch'가 적용된 브랜치입니다.
+* `linux-stable-5.4.93-rt51-remove_bh_lock': 실험적인 기능이 구현된 브랜치입니다. 정상적인 실행을 보장하지 않습니다.
+## Test branches
+* `pktgen-edge`: 성능 측정 실험에 사용된 패킷 제너레이터 응용입니다.
+* `ebpf-tstamp`: 성능 측정 프로파일링에 사용된 ebpf 프로그램입니다.
+* 'ddio-spdk': 100G 이더넷 연구목적으로 사용된 브랜치입니다.
+## kubernetes
+* `kubernetes`: RT패치가 반영된 kubernetes 브랜치입니다.
+* `KubeSpray`: Kubernetes 배포를 위한 브랜치입니다.
