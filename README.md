@@ -10,7 +10,7 @@
     + [RT Core with kube-scheduler](#rt-core-with-kube-scheduler)
 - [Explain Branches](#explain-branches)
   * [RT patched Linux branches](#rt-patched-linux-branches)
-  * [kubernetes](#kubernetes)
+  * [Kubernetes](#kubernetes)
   * [Test branches](#test-branches)
 
 # About
