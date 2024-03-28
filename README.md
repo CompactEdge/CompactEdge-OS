@@ -14,7 +14,7 @@
   * [Test branches](#test-branches)
 
 # About
-__CompactEdge-OS__는 kubernetes에 실시간 스케줄링을 지원하는 통합 플랫폼입니다.
+**CompactEdge-OS**는 kubernetes에 실시간 스케줄링을 지원하는 통합 플랫폼입니다.
 
 크게 네트워크 최적화가 적용된 실시간 커널과, 실시간 응용을 배포할 수 있는 kubernetes로 구성되어 있습니다.
 
