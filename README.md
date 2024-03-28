@@ -96,7 +96,7 @@ CompactEdge는 실시간 응용이 할당받을 수 있는 `RT-Core`를 정의�
 ## RT patched Linux branches
 * `linux-stable-5.4.93-rt51`: 가장 기본적인 PREEMPT-RT 패치가 적용된 브랜치입니다.
 * `linux-stable-5.4.93-rt51-avoid_bh_lock`: 'Avoid Bottom-half Lock Patch'가 적용된 브랜치입니다.
-* `linux-stable-5.4.93-rt51-remove_bh_lock': 실험적인 기능이 구현된 브랜치입니다. 정상적인 실행을 보장하지 않습니다.
+* `linux-stable-5.4.93-rt51-remove_bh_lock`: 실험적인 기능이 구현된 브랜치입니다. 정상적인 실행을 보장하지 않습니다.
 ## Test branches
 * `pktgen-edge`: 성능 측정 실험에 사용된 패킷 제너레이터 응용입니다.
 * `ebpf-tstamp`: 성능 측정 프로파일링에 사용된 ebpf 프로그램입니다.
