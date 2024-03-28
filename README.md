@@ -46,12 +46,32 @@ PREEMPT-RT 패치를 적용한 커널은 실시간 운영 체제(RTOS)의 특성
 <img width="611" alt="image" src="https://github.com/CompactEdge/CompactEdge-OS/assets/60088469/0229f240-f24b-407b-b906-16687948264a">
 
 ## Kubernetes
-
+### Realtime Container
 실시간 응용을 실행하기 위해서는 응용에 실시간 우선순위(realtime priority)를 부여해야 합니다.
 
 기존의 kubernetes에서는 컨테이너 응용에 실시간 우선순위를 부여하는 기능이 제공되지 않습니다.
 
+CompactEdge는 pod 생성 yaml파일의 `label`을 통해 실시간 우선순위를 부여할 수 있는 권한을 획득할 수 있습니다.
 
+### RT Core
+실시간 응용의 성능을 보장하기 위해서는 다른 응용이 접근하지 못하는 격리된 cpu가 필요합니다.
+
+CompactEdge는 실시간 응용이 할당받을 수 있는 `RT-Core`를 정의하여 다른 응용이 접근하지 못하는 cpu 할당을 보장합니다.
+
+<img width="559" alt="image" src="https://github.com/CompactEdge/CompactEdge-OS/assets/60088469/be123d58-37f4-485f-856f-2f0600bd1072">
+
+격리된 실시간 컨테이너 응용은 softirq 회피 패치가 적용되어 다음과 같이 다른 응용에 방해받지 않습니다.
+
+<img width="537" alt="image" src="https://github.com/CompactEdge/CompactEdge-OS/assets/60088469/7b1f0e2e-bb0a-457b-b433-0379ab9ec1b4">
+
+### RT Core with kube-scheduler
+`RT-Core`는 kubernetes 노드별로 어떤 cpu를 실시간 코어로 설정할지 지정할 수 있으며, 동적으로 변경할 수 있습니다.
+
+실시간 응용을 배포할 경우 kube-scheduler에서 응용이 요구하는 cpu 사용량을 파악하여 할당 가능한 kubernetes 노드를 찾습니다.
+
+<img width="1043" alt="image" src="https://github.com/CompactEdge/CompactEdge-OS/assets/60088469/c30253d3-ba6b-43e6-9627-38875fba6ec8">
+
+남은 `RT-Core` 정보는 kubernetes 노드의 label을 통해 보여지며 이를 통해 실시간 응용이 실시간 코어를 할당받음을 보장할 수 있습니다.
 
 # Architecture
 
